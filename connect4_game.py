@@ -35,7 +35,7 @@ class Connect4Game:
 
     def check_winner(self, r, c, player):
         # Check horizontal
-        for i in range(max(0, c - 3), min(self.cols - 3, c) + 1):
+        for i in range(max(0, c - 3), min(self.cols - 4, c) + 1):
             if all(self.board[r][i+k] == player for k in range(4)):
                 self.winner = player
                 return
