@@ -4,63 +4,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connect 4 vs AI</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+    <title>Connect 4 | AI Research Lab</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #121212;
-            --text-color: #e0e0e0;
-            --primary-color: #bb86fc;
-            --secondary-color: #03dac6;
-            --board-color: #1e88e5;
-            --slot-bg: #121212;
-            --p1-color: #ff5252;
+            --bg-color: #f8f9fa;
+            --text-color: #2d3748;
+            --primary-color: #3182ce;
+            --secondary-color: #718096;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --board-color: #cbd5e0;
+            --slot-empty: #edf2f7;
+            --p1-color: #e53e3e;
             /* Red */
-            --p2-color: #ffeb3b;
+            --p2-color: #ecc94b;
             /* Yellow */
         }
 
         body {
-            font-family: 'Outfit', sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: var(--bg-color);
             color: var(--text-color);
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: var(--card-bg);
+            border-bottom: 1px solid var(--border-color);
+            padding: 15px 40px;
+            display: flex;
+            align-items: center;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: var(--secondary-color);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: var(--primary-color);
+        }
+
+        main {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            margin: 0;
+            padding: 40px;
+        }
+
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: var(--shadow);
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
         }
 
         h1 {
-            margin-bottom: 20px;
-            font-size: 2.5rem;
-            text-align: center;
-            background: linear-gradient(45deg, var(--p1-color), var(--p2-color));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            margin: 0 0 10px 0;
+            font-size: 1.75rem;
+            color: #1a202c;
         }
 
-        .game-board {
+        .subtitle {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+            font-size: 0.9rem;
+        }
+
+        .board {
             background-color: var(--board-color);
-            padding: 10px;
-            border-radius: 10px;
+            padding: 15px;
+            border-radius: 8px;
             display: grid;
-            grid-template-columns: repeat(7, 60px);
-            grid-template-rows: repeat(6, 60px);
-            gap: 10px;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 30px;
         }
 
         .slot {
-            width: 60px;
-            height: 60px;
-            background-color: var(--slot-bg);
+            width: 50px;
+            height: 50px;
+            background-color: var(--slot-empty);
             border-radius: 50%;
             cursor: pointer;
             position: relative;
+            transition: background-color 0.2s;
+        }
+
+        .slot:hover:not(.filled) {
+            background-color: #e2e8f0;
         }
 
         .slot::after {
@@ -68,87 +116,82 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%;
-            height: 100%;
+            right: 0;
+            bottom: 0;
             border-radius: 50%;
-            transform: scale(0);
+            transform: scale(0.8);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            opacity: 0;
         }
 
         .slot.p1::after {
             background-color: var(--p1-color);
+            opacity: 1;
             transform: scale(1);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
         .slot.p2::after {
             background-color: var(--p2-color);
+            opacity: 1;
             transform: scale(1);
-            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
         }
 
-        /* Hover effect for column */
-        .slot:hover {
-            background-color: #333;
-        }
-
-        #status {
-            font-size: 1.5rem;
+        .status-bar {
+            background-color: #edf2f7;
+            padding: 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            color: #4a5568;
             margin-bottom: 20px;
             min-height: 1.5em;
         }
 
         button {
-            background-color: var(--secondary-color);
-            color: #000;
+            background-color: var(--primary-color);
+            color: white;
             border: none;
             padding: 12px 24px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 25px;
+            border-radius: 6px;
+            font-weight: 600;
             cursor: pointer;
-            margin-top: 20px;
-            transition: transform 0.2s;
+            width: 100%;
+            transition: background-color 0.2s;
         }
 
         button:hover {
-            transform: translateY(-2px);
+            background-color: #2b6cb0;
         }
 
         #loading {
-            display: none;
+            font-size: 0.8rem;
             color: var(--secondary-color);
-            margin-bottom: 10px;
-        }
-
-        @media (max-width: 550px) {
-            .game-board {
-                grid-template-columns: repeat(7, 40px);
-                grid-template-rows: repeat(6, 40px);
-                gap: 5px;
-            }
-
-            .slot {
-                width: 40px;
-                height: 40px;
-            }
+            margin-top: 10px;
+            display: none;
         }
     </style>
 </head>
 
 <body>
 
-    <h1>Connect 4 AI</h1>
-    <div id="status">Your Turn! (Red)</div>
-    <div id="loading">Agent is thinking...</div>
+    <header>
+        <a href="/" class="back-link">&larr; Back to Dashboard</a>
+    </header>
 
-    <div class="game-board" id="board">
-        <!-- Slots generated by JS -->
-    </div>
+    <main>
+        <div class="game-card">
+            <h1>Connect 4</h1>
+            <div class="subtitle">Deep Q-Network (CNN)</div>
 
-    <button onclick="resetGame()">New Game</button>
-    <br>
-    <a href="/" style="color: gray; text-decoration: none;">&larr; Back to Hub</a>
+            <div class="status-bar" id="status">Your Turn (Red)</div>
+
+            <div class="board" id="board">
+                <!-- Generated by JS -->
+            </div>
+
+            <button onclick="resetGame()">Reset Simulation</button>
+            <div id="loading">Processing move...</div>
+        </div>
+    </main>
 
     <script>
         const rows = 6;
@@ -173,11 +216,9 @@
 
         async function handleColumnClick(col) {
             if (gameOver || isFetching) return;
+            if (board[0][col] !== 0) return; // Column full
 
-            // Check if column is full
-            if (board[0][col] !== 0) return;
-
-            // Optimistic update for player
+            // Optimistic update
             let r = -1;
             for (let i = rows - 1; i >= 0; i--) {
                 if (board[i][col] === 0) {
@@ -187,9 +228,8 @@
             }
             if (r === -1) return;
 
-            board[r][col] = -1; // Player is -1
+            board[r][col] = -1; // Player
             renderBoard();
-
             await makeMove(col);
         }
 
@@ -204,20 +244,19 @@
                 });
 
                 if (!res.ok) throw new Error("Server error");
-
                 const data = await res.json();
+
                 if (data.error) {
                     alert(data.error);
                     return;
                 }
 
-                board = data.board; // Expecting 2D array from server
+                board = data.board;
                 gameOver = data.winner !== null;
                 renderBoard();
                 updateStatus(data.winner);
             } catch (e) {
                 console.error("Move failed:", e);
-                alert("Move failed. See console.");
             } finally {
                 isFetching = false;
                 showLoading(false);
@@ -230,9 +269,12 @@
             for (let r = 0; r < rows; r++) {
                 for (let c = 0; c < cols; c++) {
                     const val = board[r][c];
-                    slots[i].classList.remove("p1", "p2");
-                    if (val === 1) slots[i].classList.add("p2"); // AI is Yellow (p2)
-                    else if (val === -1) slots[i].classList.add("p1"); // Player is Red (p1)
+                    slots[i].classList.remove("p1", "p2", "filled");
+                    if (val === 1) {
+                        slots[i].classList.add("p2", "filled");
+                    } else if (val === -1) {
+                        slots[i].classList.add("p1", "filled");
+                    }
                     i++;
                 }
             }
@@ -241,11 +283,11 @@
         function updateStatus(winner) {
             const statusEl = document.getElementById("status");
             if (winner !== null) {
-                if (winner === 1) statusEl.innerText = "Agent Wins!";
-                else if (winner === -1) statusEl.innerText = "You Win!"; // Player is -1
-                else statusEl.innerText = "It's a Draw!";
+                if (winner === 1) statusEl.innerText = "Agent Wins";
+                else if (winner === -1) statusEl.innerText = "You Win";
+                else statusEl.innerText = "Draw";
             } else {
-                statusEl.innerText = "Your Turn!";
+                statusEl.innerText = "Your Turn (Red)";
             }
         }
 
@@ -257,13 +299,10 @@
             board = Array(rows).fill().map(() => Array(cols).fill(0));
             gameOver = false;
             renderBoard();
-            document.getElementById("status").innerText = "Your Turn!";
-
+            document.getElementById("status").innerText = "Your Turn (Red)";
             try {
                 await fetch("/api/connect4/reset", { method: "POST" });
-            } catch (e) {
-                console.error("Reset error:", e);
-            }
+            } catch (e) { console.error(e); }
         }
     </script>
 </body>
